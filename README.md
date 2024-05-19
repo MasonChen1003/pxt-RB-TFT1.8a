@@ -1,11 +1,12 @@
 # MakeCode Package for the RB-TFT1.8 (ST7735 1.8" TFT Display).
 
 This library provides a Microsoft Makecode package for the Joy-IT RB-TFT1.8 ST7735 module.
-See https://joy-it.net/products/RB-TFT1.8 for more details.
+Org: See https://joy-it.net/products/RB-TFT1.8 for more details.  
+Modify for MicroGame pin assignment. 
 
 ## Connection
 
-The display needs to be connected with seven pins to the Micro:bit:
+Update the connection for MicroGame. 
 
 | RB-TFT1.8     | Micro:bit     |
 | ------------- |:-------------:|
@@ -13,9 +14,9 @@ The display needs to be connected with seven pins to the Micro:bit:
 | GND           | GND           |
 | SCL           | P13           |
 | SDA           | P15           |
-| RS/DC         | P1            |
-| RES           | 3V            |
-| CS            | P16           |
+| RS/DC         | P8 (new)      |
+| RES           | P16(new)      |
+| CS            | GND           |
 
 ## Color possibilities
 
