@@ -111,26 +111,24 @@ enum Color {
      /*
       * Send command to display
       */
-     function send(command: TFTCommands, parameter: Array<number>): void {
-         // set TFT to command-receive mode
-         pins.digitalWritePin(DigitalPin.P8, 0)
-         // select TFT controller
-         // hardware always to GND
-         // RES always to 3V3
-         pins.digitalWritePin(DigitalPin.P16, 0)
-         // Send command
-         pins.spiWrite(command)
+   function send(command: TFTCommands, parameter: Array<number>): void {
+        // set TFT to command-receive mode
+        pins.digitalWritePin(DigitalPin.P8, 0)
+        // select TFT controller
+        // No need to control CS pin as it is connected to GND
+        // Send command
+        pins.spiWrite(command)
 
-         // set TFT back to data-receive mode
-         pins.digitalWritePin(DigitalPin.P8, 1)
+        // set TFT back to data-receive mode
+        pins.digitalWritePin(DigitalPin.P1, 1)
 
-         for (let item of parameter) {
-             pins.spiWrite(item)
-         }
+        for (let item of parameter) {
+            pins.spiWrite(item)
+        }
 
-         // deselect TFT controller
-          pins.digitalWritePin(DigitalPin.P16, 1)
-     }
+        // deselect TFT controller
+        // No need to control CS pin as it is connected to GND
+    }
 
      /*
       * Set pixel address window - minimum and maximum pixel bounds
@@ -143,23 +141,23 @@ enum Color {
      /*
       * Data-Mode to transfer data to TFT for further processing
       */
-     function enterDataMode(): void {
-         // Activate command mode
-         pins.digitalWritePin(DigitalPin.P8, 0)
-         // select TFT as SPI-target
-         pins.digitalWritePin(DigitalPin.P16, 0)
-         pins.spiWrite(TFTCommands.RAMWR)
-         // Activate data mode
-         pins.digitalWritePin(DigitalPin.P8, 1)
-     }
+    function enterDataMode(): void {
+        // Activate command mode
+        pins.digitalWritePin(DigitalPin.P8, 0)
+        // select TFT as SPI-target
+        // No need to control CS pin as it is connected to GND
+        pins.spiWrite(TFTCommands.RAMWR)
+        // Activate data mode
+        pins.digitalWritePin(DigitalPin.P8, 1)
+    }
 
      /*
       * Finish data-mode and set back to command-mode
       */
-     function exitDataMode(): void {
-         pins.digitalWritePin(DigitalPin.P16, 1) // de-elect the TFT as SPI target
-         pins.digitalWritePin(DigitalPin.P8, 0) // command/data = command
-     }
+    function exitDataMode(): void {
+        // No need to control CS pin as it is connected to GND
+        pins.digitalWritePin(DigitalPin.P8, 0) // command/data = command
+    }
 
      /*
       * Initial TFT setup
