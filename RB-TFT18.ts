@@ -169,7 +169,12 @@ enum Color {
      export function init(): void {
          // set SPI frequency
          pins.spiFrequency(4000000)
-         pins.digitalWritePin(DigitalPin.P16, 1) // RES 3V3
+        
+        // Software reset
+        pins.digitalWritePin(DigitalPin.P16, 0) // Activate RES pin
+        control.waitMicros(50)
+        pins.digitalWritePin(DigitalPin.P16, 1) // Deactivate RES pin
+        control.waitMicros(150)
         
          // Software reset
          send(TFTCommands.SWRESET, [1])
