@@ -111,23 +111,18 @@ enum Color {
      /*
       * Send command to display
       */
-   function send(command: TFTCommands, parameter: Array<number>): void {
+    function send(command: TFTCommands, parameter: Array<number>): void {
         // set TFT to command-receive mode
         pins.digitalWritePin(DigitalPin.P8, 0)
         // select TFT controller
-        // No need to control CS pin as it is connected to GND
-        // Send command
         pins.spiWrite(command)
 
         // set TFT back to data-receive mode
-        pins.digitalWritePin(DigitalPin.P1, 1)
+        pins.digitalWritePin(DigitalPin.P8, 1)
 
         for (let item of parameter) {
             pins.spiWrite(item)
         }
-
-        // deselect TFT controller
-        // No need to control CS pin as it is connected to GND
     }
 
      /*
@@ -144,12 +139,11 @@ enum Color {
     function enterDataMode(): void {
         // Activate command mode
         pins.digitalWritePin(DigitalPin.P8, 0)
-        // select TFT as SPI-target
-        // No need to control CS pin as it is connected to GND
         pins.spiWrite(TFTCommands.RAMWR)
         // Activate data mode
         pins.digitalWritePin(DigitalPin.P8, 1)
     }
+
 
      /*
       * Finish data-mode and set back to command-mode
@@ -174,47 +168,36 @@ enum Color {
         pins.digitalWritePin(DigitalPin.P16, 1) // Deactivate RES pin
         control.waitMicros(150)
         
-         // Software reset
-         send(TFTCommands.SWRESET, [1])
-         // Exit Sleep mode
-         send(TFTCommands.SLPOUT, [1])
-         // Frame rate control - normal mode
-         send(TFTCommands.FRMCTR1, [0x01, 0x2C, 0x2D])
-         // Frame rate control - idle mode
-         send(TFTCommands.FRMCTR2, [0x01, 0x2C, 0x2D, 0x01, 0x2C, 0x2D])
-         // Display inversion control
-         send(TFTCommands.INVCTR, [0x07])
-         // Display power control
-         send(TFTCommands.PWCTR1, [0xA2, 0x02, 0x84])
-         send(TFTCommands.PWCTR2, [0x8A, 0x2A])
-         send(TFTCommands.PWCTR3, [0x0A, 0x00])
-         send(TFTCommands.PWCTR4, [0x8A, 0x2A])
-         send(TFTCommands.PWCTR5, [0x8A, 0xEE])
-         send(TFTCommands.VMCTR1, [0x0E])
+        // Send initialization commands
+        send(TFTCommands.SWRESET, [])
+        control.waitMicros(150)
+        send(TFTCommands.SLPOUT, [])
+        control.waitMicros(500)
 
-         // Disable inversion
-         send(TFTCommands.INVOFF, [])
+        send(TFTCommands.FRMCTR1, [0x01, 0x2C, 0x2D])
+        send(TFTCommands.FRMCTR2, [0x01, 0x2C, 0x2D])
+        send(TFTCommands.FRMCTR3, [0x01, 0x2C, 0x2D, 0x01, 0x2C, 0x2D])
+        send(TFTCommands.INVCTR, [0x07])
+        send(TFTCommands.PWCTR1, [0xA2, 0x02, 0x84])
+        send(TFTCommands.PWCTR2, [0x8A, 0x2A])
+        send(TFTCommands.PWCTR3, [0x0A, 0x00])
+        send(TFTCommands.PWCTR4, [0x8A, 0x2A])
+        send(TFTCommands.PWCTR5, [0x8A, 0xEE])
+        send(TFTCommands.VMCTR1, [0x0E])
 
-         // Memory access control
-         send(TFTCommands.MADCTL, [0xC8])
+        send(TFTCommands.MADCTL, [0xC8])
+        send(TFTCommands.COLMOD, [0x05])
 
-         // Set 16-bit color mode
-         send(TFTCommands.COLMOD, [0x05])
+        send(TFTCommands.CASET, [0x00, 0x00, 0x00, 0x7F])
+        send(TFTCommands.RASET, [0x00, 0x00, 0x00, 0x9F])
 
-         // Column address set
-         send(TFTCommands.CASET, [0x00, 0x00, 0x00, 0x7F])
-         // Row address set
-         send(TFTCommands.RASET, [0x00, 0x00, 0x00, 0x9F])
+        send(TFTCommands.GMCTRP1, [0x02, 0x1C, 0x07, 0x12, 0x37, 0x32, 0x29, 0x2D, 0x29, 0x25, 0x2B, 0x39, 0x00, 0x01, 0x03, 0x10])
+        send(TFTCommands.GMCTRN1, [0x03, 0x1D, 0x07, 0x06, 0x2E, 0x2C, 0x29, 0x2D, 0x2E, 0x2E, 0x37, 0x3F, 0x00, 0x00, 0x02, 0x10])
 
-         // Set Gamma
-         send(TFTCommands.GMCTRP1, [0x02, 0x1C, 0x07, 0x12, 0x37, 0x32, 0x29, 0x2D, 0x29, 0x25, 0x2B, 0x39, 0x00, 0x01, 0x03, 0x10])
-         send(TFTCommands.GMCTRN1, [0x03, 0x1D, 0x07, 0x06, 0x2E, 0x2C, 0x29, 0x2D, 0x2E, 0x2E, 0x37, 0x3F, 0x00, 0x00, 0x02, 0x10])
-
-         // Set normal mode
-         send(TFTCommands.NORON, [])
-
-         // Turn display on
-         send(TFTCommands.DISPON, [])
+        send(TFTCommands.NORON, [])
+        control.waitMicros(10)
+        send(TFTCommands.DISPON, [])
+        control.waitMicros(100)
      }
 
      /*
@@ -404,6 +387,4 @@ enum Color {
      export function turnOn(): void {
          send(TFTCommands.DISPON, [])
      }
-
-
  }
